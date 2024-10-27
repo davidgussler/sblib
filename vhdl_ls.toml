@@ -1,0 +1,30 @@
+standard = "2008"
+
+[libraries]
+
+lib.files = [
+  'src/*.vhd',
+  'src/*/*.vhd',
+  'tb/*.vhd',
+#  'tb/*/*.vhd',
+]
+
+UNISIM.files = [
+  '%XILINX_VIVADO%/data/vhdl/src/unisims/unisim_VCOMP.vhd',
+]
+UNISIM.is_third_party = true
+
+xpm.files = [
+  '%XILINX_VIVADO%/data/ip/xpm/xpm_VCOMP.vhd',
+]
+xpm.is_third_party = true
+
+vunit_lib.files = [
+  '%VUNIT_ROOTDIR%/vhdl/*.vhd',
+  '%VUNIT_ROOTDIR%/vhdl/*/src/*.vhd',
+  '%VUNIT_ROOTDIR%/vhdl/osvvm/*.vhd',
+]
+vunit_lib.is_third_party = true
+
+[lint]
+unnecessary_work_library = false

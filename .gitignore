@@ -1,0 +1,17 @@
+.Xil
+vivado*.jou
+vivado*.log
+vivado*.str
+
+*.cache
+*.gen
+*.hw
+*.ip_user_files
+*.runs
+*.sim
+*.srcs
+*.xpr
+
+regs_gen
+vunit_out
+build

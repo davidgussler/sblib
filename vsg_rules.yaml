@@ -1,0 +1,225 @@
+indent:
+  tokens:
+    use_clause:
+      keyword:
+        token_after_library_clause: current
+        token_if_no_matching_library_clause: current
+    component_instantiation_statement:
+      instantiation_label:
+        after: current
+        token: current
+      semicolon:
+        after: current
+        token: current
+rule:
+  global: 
+    indent_size: 2
+    indent_style: spaces 
+  architecture_003:
+    style: allow_comment
+  architecture_025:
+    disable: false
+    names:
+      - rtl
+      - tb
+  block_601:
+    disable: false
+    prefixes:
+      - blk_
+  case_007:
+    disable: true
+  case_009:
+    disable: true
+  case_012:
+    disable: true
+  case_200:
+    style: no_blank_line
+  case_201:
+    disable: true
+  comment_012:
+    disable: false
+    keywords:
+      - TODO
+      - FIXME
+  comment_100:
+    exceptions:
+      - --!
+      - --=
+      - --+
+      - --|
+      - ---
+      - --#
+  component_003:
+    disable: true
+  component_018:
+    disable: true
+  concurrent_003:
+    align_left: yes
+    align_paren: no
+  concurrent_009:
+    disable: true
+  concurrent_012:
+    first_paren_new_line: no
+    assign_on_single_line: ignore
+  conditional_waveforms_001:
+    allow_single_line: yes
+  constant_004: 
+    case: upper
+  constant_012:
+    align_left: yes
+    align_paren: no
+  constant_014:
+    align_left: yes
+    align_paren: no
+  constant_016:
+    first_paren_new_line: no
+    assign_on_single_line: ignore
+  constant_017:
+    record_constraint_open_paren: remove_new_line
+    record_constraint_close_paren: add_new_line
+    record_constraint_comma: remove_new_line
+    record_constraint_element: add_new_line
+    array_constraint: all_in_one_line
+  constant_101:
+    disable: false
+  element_association_100:
+    disable: true
+  entity_003: 
+    style: allow_comment
+  function_006:
+    style: allow_comment
+  function_600: 
+    disable: false 
+    prefix:
+      - fn_
+  generate_004:
+    style: allow_comment
+  generate_017:
+    disable: false
+    prefixes:
+      - gen_
+  generic_007:
+    case: upper
+  generic_020:
+    disable: false
+    prefixes:
+      - G_
+    exceptions:
+      - runner_cfg
+  generic_map_002:
+    case: upper
+  if_002:
+    parenthesis: remove
+  if_008:
+    disable: true
+  if_010:
+    disable: true
+  if_030:
+    disable: true
+  if_031:
+    disable: true
+  instantiation_004:
+    style: allow_comment
+  instantiation_034:
+    disable: true
+  instantiation_601:
+    disable: false
+    prefixes: u_
+  length_001:
+    length: 80
+    severity: Warning
+  loop_statement_200:
+    disable: true
+  loop_statement_201:
+    disable: true
+  loop_statement_202:
+    disable: true
+  loop_statement_203:
+    disable: true
+  package_003:
+    style: allow_comment
+  package_011:
+    disable: true
+  package_012:
+    disable: true 
+  package_body_600:
+    disable: false 
+    suffixes:
+      - _pkg
+  port_010: 
+    case: lower
+  # port_011:
+  #   disable: false
+  #   prefixes: ['i_', 'o_', 'io_', 'm_', 's_']
+  port_012:
+    disable: true
+  # port_600:
+  #   disable: false
+  #   prefixes: ['i_']
+  # port_601:
+  #   disable: false
+  #   prefixes: ['o_']
+  # port_602:
+  #   disable: false
+  #   prefixes: ['io_']
+  procedure_200:
+    style: allow_comment
+  process_015:
+    style: allow_comment
+  process_022:
+    disable: true
+  process_023:
+    disable: true
+  process_026:
+    disable: true
+  process_027:
+    disable: true
+  process_029:
+    disable: false
+    clock: edge
+  process_035:
+    blank_line_ends_group: yes
+    comment_line_ends_group: yes
+    compact_alignment: yes
+  process_036:
+    disable: false
+    prefixes:
+      - proc_
+  sequential_004:
+    align_left: yes
+    align_paren: no
+  sequential_009:
+    first_paren_new_line: no
+    assign_on_single_line: ignore
+  signal_007:
+    severity: Warning
+  subprogram_body_201:
+    disable: true
+  subprogram_body_202:
+    disable: true
+  subprogram_body_203:
+    disable: true
+  subprogram_body_204:
+    disable: true    
+  type_010:
+    style: allow_comment
+  type_011:
+    disable: true
+  type_200:
+    disable: true  
+  type_500:
+    case: upper
+  type_600:
+    disable: false
+    suffixes: 
+      - _t
+  variable_007:
+    disable: true
+  variable_assignment_004:
+    align_left: yes
+    align_paren: no
+  variable_assignment_007:
+    new_line_after_assign: ignore
+  variable_assignment_008:
+    first_paren_new_line: no
+    assign_on_single_line: ignore
