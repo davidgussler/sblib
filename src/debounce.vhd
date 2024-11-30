@@ -21,16 +21,18 @@ entity debounce is
     G_COUNT : positive := 16
   );
   port (
-    clk : in std_logic;
+    clk  : in std_logic;
     srst : in std_logic := '0';
-    din : in std_logic;
+    din  : in std_logic;
     dout : out std_logic
   );
 end entity;
 
 architecture rtl of debounce is
+
   signal samples : std_logic_vector(1 downto 0);
   signal cnt : integer range 0 to G_COUNT-1; 
+  
 begin
 
   prc_debounce : process (clk) begin

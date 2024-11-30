@@ -1,5 +1,5 @@
 --##############################################################################
---# File     : axil_to_regb.vhd
+--# File     : axil_to_reg.vhd
 --# Author   : David Gussler
 --# Language : VHDL '08
 --# ============================================================================
@@ -17,7 +17,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.types_pkg.all;
 
-entity axil_to_regb is
+entity axil_to_reg is
   port (
     clk   : in std_logic;
     srst  : in std_logic;
@@ -25,12 +25,12 @@ entity axil_to_regb is
     s_axil_req : in  axil_req_t;
     s_axil_rsp : out axil_rsp_t;
     --
-    m_regb_req : out regb_req_t;
-    m_regb_rsp : in  regb_rsp_t
+    m_reg_req : out reg_req_t;
+    m_reg_rsp : in  reg_rsp_t
   );
-end entity axil_to_regb;
+end entity;
 
-architecture rtl of axil_to_regb is
+architecture rtl of axil_to_reg is
 
   signal awvalid : std_logic;
   signal awaddr  : std_logic_vector(31 downto 0);
@@ -123,10 +123,10 @@ begin
   s_axil_rsp.bresp <= AXI_RSP_OKAY;
 
   -- Set sbb write request outputs
-  m_regb_req.wen   <= wen; 
-  m_regb_req.waddr <= awaddr;
-  m_regb_req.wdata <= wdata;
-  m_regb_req.wstrb <= wstrb;
+  m_reg_req.wen   <= wen; 
+  m_reg_req.waddr <= awaddr;
+  m_reg_req.wdata <= wdata;
+  m_reg_req.wstrb <= wstrb;
 
 
   -- ===========================================================================
@@ -180,10 +180,10 @@ begin
   -- Always respond with OKAY. Our simple bus does not support slave errors.
   -- Also respond with the read data
   s_axil_rsp.rresp <= AXI_RSP_OKAY;
-  s_axil_rsp.rdata <= m_regb_rsp.rdata;
+  s_axil_rsp.rdata <= m_reg_rsp.rdata;
 
   -- Set regb read request outputs
-  m_regb_req.ren   <= ren; 
-  m_regb_req.raddr <= araddr;
+  m_reg_req.ren   <= ren; 
+  m_reg_req.raddr <= araddr;
 
 end architecture;

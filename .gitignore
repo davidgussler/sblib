@@ -12,6 +12,6 @@ vivado*.str
 *.srcs
 *.xpr
 
-regs_gen
+peakrdl_out
 vunit_out
 build

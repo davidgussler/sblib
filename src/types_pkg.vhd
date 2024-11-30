@@ -83,7 +83,7 @@ package types_pkg is
   -- Full duplex communication at 1 transfer per cycle for maximum bandwidth.
   -- Recommended to use this for user logic and connect to an axil adaptor for 
   -- external pipelining and interconnect logic.
-  type regb_req_t is record 
+  type reg_req_t is record 
     ren   : std_logic;
     raddr : std_logic_vector(31 downto 0);
     wen   : std_logic;
@@ -92,7 +92,7 @@ package types_pkg is
     wdata : std_logic_vector(31 downto 0);
   end record;
 
-  type regb_rsp_t is record 
+  type reg_rsp_t is record 
     rdata : std_logic_vector(31 downto 0);
   end record;
 

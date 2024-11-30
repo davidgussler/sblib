@@ -34,7 +34,6 @@ end entity;
 architecture rtl of edge_detect is
 
   -- ---------------------------------------------------------------------------
-  -- Internal signals
   signal din_ff : std_logic_vector(G_WIDTH - 1 downto 0);
   signal rise_i : std_logic_vector(G_WIDTH - 1 downto 0);
   signal fall_i : std_logic_vector(G_WIDTH - 1 downto 0);

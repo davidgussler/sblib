@@ -1,5 +1,5 @@
 --##############################################################################
---# File     : apb_to_regb.vhd
+--# File     : apb_to_reg.vhd
 --# Author   : David Gussler
 --# Language : VHDL '08
 --# ============================================================================
@@ -17,7 +17,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.types_pkg.all;
 
-entity apb_to_regb is
+entity apb_to_reg is
   port (
     clk   : in std_logic;
     srst  : in std_logic;
@@ -25,12 +25,12 @@ entity apb_to_regb is
     s_apb_req : in  apb_req_t;
     s_apb_rsp : out apb_rsp_t;
     --
-    m_regb_req : out regb_req_t;
-    m_regb_rsp : in  regb_rsp_t
+    m_reg_req : out reg_req_t;
+    m_reg_rsp : in  reg_rsp_t
   );
-end entity apb_to_regb;
+end entity;
 
-architecture rtl of apb_to_regb is
+architecture rtl of apb_to_reg is
 
 begin
 

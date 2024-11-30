@@ -20,10 +20,10 @@ use ieee.numeric_std.all;
 entity axis_pipe is
   generic (
     --! Mode options:
-    --! * PASSTHRU
-    --! * SLAVE
-    --! * MASTER
-    --! * FULL
+    --! * "PASSTHRU"
+    --! * "SLAVE"
+    --! * "MASTER"
+    --! * "FULL"
     G_MODE : string := "FULL"
   );
   port(
@@ -60,8 +60,7 @@ begin
 
   begin 
 
-    prc_slave : process (clk)
-    begin
+    prc_slave : process (clk) begin
       if rising_edge(clk) then
 
         if s_ready then 
@@ -83,8 +82,7 @@ begin
 
   -- ---------------------------------------------------------------------------
   -- Registers the master interface's output valid and data signals
-  elsif G_MODE = "MASTER" generate
-  begin
+  elsif G_MODE = "MASTER" generate begin
     prc_master : process (clk)
     begin
       if rising_edge(clk) then
@@ -135,10 +133,6 @@ begin
       end if;
     end process;
 
-    valid_int <= s_valid or not s_ready;
-    data_int <= s_data when s_ready else data_buff; 
-
-
     prc_master : process (clk) begin
       if rising_edge(clk) then
 
@@ -153,16 +147,17 @@ begin
       end if;
     end process;
 
+    valid_int <= s_valid or not s_ready;
+    data_int <= s_data when s_ready else data_buff; 
     ready_int <= m_ready or not m_valid;
 
   -- ---------------------------------------------------------------------------
   -- Unknown mode - error
-  else generate
-  begin 
+  else generate begin 
 
     assert false
-    report "ERROR: axis_pipe G_MODE = < PASSTHRU | SLAVE | MASTER | FULL >"
-    severity error;
+      report "ERROR: axis_pipe G_MODE = [ PASSTHRU | SLAVE | MASTER | FULL ]"
+      severity error;
 
   end generate;
 
