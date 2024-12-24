@@ -1,5 +1,5 @@
 --##############################################################################
---# File     : types_pkg.vhd
+--# File     : type_pkg.vhd
 --# Author   : David Gussler
 --# Language : VHDL '08
 --# ============================================================================
@@ -13,20 +13,30 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-package types_pkg is
+package type_pkg is
+
+  -- ---------------------------------------------------------------------------
+  -- AXI
+  constant AXI_RSP_OKAY   : std_logic_vector(1 downto 0) := b"00";
+  constant AXI_RSP_EXOKAY : std_logic_vector(1 downto 0) := b"01";
+  constant AXI_RSP_SLVERR : std_logic_vector(1 downto 0) := b"10";
+  constant AXI_RSP_DECERR : std_logic_vector(1 downto 0) := b"11";
 
   -- ---------------------------------------------------------------------------
   -- AXI Lite
+  constant AXIL_DATA_WIDTH : positive := 32; 
+  constant AXIL_ADDR_WIDTH : positive := 32; 
+
   type axil_req_t is record
     awvalid : std_logic;
-    awaddr  : std_logic_vector(31 downto 0);
+    awaddr  : std_logic_vector(AXIL_ADDR_WIDTH-1 downto 0);
     awprot  : std_logic_vector( 2 downto 0);
     wvalid  : std_logic;
-    wdata   : std_logic_vector(31 downto 0);
-    wstrb   : std_logic_vector( 3 downto 0);
+    wdata   : std_logic_vector(AXIL_DATA_WIDTH-1 downto 0);
+    wstrb   : std_logic_vector(AXIL_DATA_WIDTH/8-1 downto 0);
     bready  : std_logic;
     arvalid : std_logic;
-    araddr  : std_logic_vector(31 downto 0);
+    araddr  : std_logic_vector(AXIL_ADDR_WIDTH-1 downto 0);
     arprot  : std_logic_vector( 2 downto 0);
     rready  : std_logic;
   end record;
@@ -45,11 +55,7 @@ package types_pkg is
   type axil_req_arr_t is array (natural range <>) of axil_req_t;
   type axil_rsp_arr_t is array (natural range <>) of axil_rsp_t;
 
-  constant AXI_RSP_OKAY   : std_logic_vector(1 downto 0) := b"00";
-  constant AXI_RSP_EXOKAY : std_logic_vector(1 downto 0) := b"01";
-  constant AXI_RSP_SLVERR : std_logic_vector(1 downto 0) := b"10";
-  constant AXI_RSP_DECERR : std_logic_vector(1 downto 0) := b"11";
-
+  
   -- ---------------------------------------------------------------------------
   -- Advanced Peripheral Bus
   type apb_req_t is record
@@ -73,7 +79,7 @@ package types_pkg is
 
 
   -- ---------------------------------------------------------------------------
-  -- Register Bus
+  -- Simple Bus
   -- This is a simple bus interface for basic components that don't need 
   -- most of the features offered by busses like axi / avalon, but 
   -- still require higher performance than can be offered by busses like apb.
@@ -83,7 +89,7 @@ package types_pkg is
   -- Full duplex communication at 1 transfer per cycle for maximum bandwidth.
   -- Recommended to use this for user logic and connect to an axil adaptor for 
   -- external pipelining and interconnect logic.
-  type reg_req_t is record 
+  type sbus_req_t is record 
     ren   : std_logic;
     raddr : std_logic_vector(31 downto 0);
     wen   : std_logic;
@@ -92,8 +98,10 @@ package types_pkg is
     wdata : std_logic_vector(31 downto 0);
   end record;
 
-  type reg_rsp_t is record 
+  type sbus_rsp_t is record 
     rdata : std_logic_vector(31 downto 0);
+    rerr : std_logic;
+    werr : std_logic;
   end record;
 
   -- ---------------------------------------------------------------------------

@@ -54,8 +54,8 @@ architecture rtl of cdc_reset is
     std_logic_vector(G_SYNC_LEN-1 downto 0);
   
   -- ---------------------------------------------------------------------------
-  signal sr                    : sr_t;
-  signal unique_net_false_path : std_logic;
+  signal sr             : sr_t;
+  signal dont_touch_net : std_logic;
 
   -- ---------------------------------------------------------------------------
   attribute async_reg                           : string;
@@ -63,7 +63,7 @@ architecture rtl of cdc_reset is
   attribute shreg_extract                       : string;
   attribute shreg_extract of sr                 : signal is "NO";
   attribute dont_touch                          : string;
-  attribute dont_touch of unique_net_false_path : signal is "TRUE";
+  attribute dont_touch of dont_touch_net        : signal is "TRUE";
 
   -- ---------------------------------------------------------------------------
   -- Returns '1' if any of the async reset bits are asserted, otherwise '0'
@@ -83,13 +83,13 @@ architecture rtl of cdc_reset is
 
 begin
 
-  unique_net_false_path <= fn_arst(src_arst, G_ARST_LVL);
+  dont_touch_net <= fn_arst(src_arst, G_ARST_LVL);
 
   -- ---------------------------------------------------------------------------
   gen_arst : for idx in 0 to G_NUM_SRST-1 generate
 
-    prc_rst_sync : process (dst_clk(idx), unique_net_false_path) begin
-      if unique_net_false_path then
+    prc_rst_sync : process (dst_clk(idx), dont_touch_net) begin
+      if dont_touch_net then
         for sr_bit in 0 to G_SYNC_LEN-1 loop
           sr(idx)(sr_bit) <= G_SRST_LVL(idx);
         end loop;

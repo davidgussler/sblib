@@ -41,20 +41,21 @@ end entity cdc_bit;
 architecture rtl of cdc_bit is
 
   -- ---------------------------------------------------------------------------
-  type sr_t is array (natural range 0 to G_SYNC_LEN - 1) of 
+  type cdc_regs_t is array (natural range 0 to G_SYNC_LEN - 2) of 
     std_logic_vector(G_WIDTH - 1 downto 0);
 
   -- ---------------------------------------------------------------------------
-  signal sr                    : sr_t;
-  signal unique_net_false_path : std_logic_vector(G_WIDTH - 1 downto 0);
+  signal cdc_regs0 : std_logic_vector(G_WIDTH - 1 downto 0);
+  signal cdc_regs           : cdc_regs_t;
+  signal dont_touch_src_bit : std_logic_vector(G_WIDTH - 1 downto 0);
 
   -- ---------------------------------------------------------------------------
-  attribute async_reg                           : string;
-  attribute async_reg of sr                     : signal is "TRUE";
-  attribute shreg_extract                       : string;
-  attribute shreg_extract of sr                 : signal is "NO";
-  attribute dont_touch                          : string;
-  attribute dont_touch of unique_net_false_path : signal is "TRUE";
+  attribute async_reg                : string;
+  attribute async_reg of sr          : signal is "TRUE";
+  attribute shreg_extract            : string;
+  attribute shreg_extract of sr      : signal is "NO";
+  attribute dont_touch               : string;
+  attribute dont_touch of dont_touch_src_bit : signal is "TRUE";
 
 begin
 
@@ -63,29 +64,29 @@ begin
 
     p_src_clk : process (src_clk) is begin
       if rising_edge(src_clk) then
-        unique_net_false_path <= src_bit;
+        dont_touch_src_bit <= src_bit;
       end if;
     end process p_src_clk;
 
   else generate
 
-    unique_net_false_path <= src_bit;
+    dont_touch_src_bit <= src_bit;
 
   end generate;
 
   -- ---------------------------------------------------------------------------
   prc_bit_sync : process (dst_clk) is begin
     if rising_edge(dst_clk) then
-  
-      sr(0) <= unique_net_false_path;
+      cdc_regs0 <= dont_touch_src_bit;
+      cdc_regs(0) <= cdc_regs0;
       
-      for i in 1 to G_SYNC_LEN - 1 loop
-        sr(i) <= sr(i - 1);
+      for i in 1 to cdc_regs'high loop
+        cdc_regs(i) <= cdc_regs(i - 1);
       end loop;
 
     end if;
   end process;
 
-  dst_bit <= sr(G_SYNC_LEN - 1);
+  dst_bit <= cdc_regs(cdc_regs'high);
 
 end architecture;

@@ -10,4 +10,4 @@
 # terms of the BSD-2 license: https://opensource.org/license/bsd-2-clause
 ################################################################################
 
-set_false_path -to [get_cells unique_net_false_path*]
+set_false_path -to [get_cells dont_touch_net*]

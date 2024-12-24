@@ -40,13 +40,13 @@ architecture rtl of cdc_vector is
   signal src_ack_pulse       : std_logic;
   signal dst_req_pulse       : std_logic;
   signal dst_ack_pulse       : std_logic;
-  signal unique_net_src_data : std_logic_vector;
-  signal unique_net_dst_data : std_logic_vector;
+  signal dont_touch_src_data : std_logic_vector;
+  signal dont_touch_dst_data : std_logic_vector;
 
   -- ---------------------------------------------------------------------------
   attribute dont_touch                        : string;
-  attribute dont_touch of unique_net_src_data : signal is "TRUE";
-  attribute dont_touch of unique_net_dst_data : signal is "TRUE";
+  attribute dont_touch of dont_touch_src_data : signal is "TRUE";
+  attribute dont_touch of dont_touch_dst_data : signal is "TRUE";
 
 begin
 
@@ -55,7 +55,7 @@ begin
     if rising_edge(src_clk) then
       src_valid_ff <= src_valid;
       src_ready_ff <= src_ready;
-      unique_net_src_data <= src_data; 
+      dont_touch_src_data <= src_data; 
     end if;
   end process;
 
@@ -80,13 +80,13 @@ begin
     if rising_edge(dst_clk) then
       if dst_req_pulse then
         dst_valid <= '1';
-        unique_net_dst_data <= unique_net_src_data;
+        dont_touch_dst_data <= dont_touch_src_data;
       elsif dst_valid and dst_ready then
         dst_valid <= '0';
       end if;
     end if;
   end process;
-  dst_data <= unique_net_dst_data; 
+  dst_data <= dont_touch_dst_data; 
 
   -- Ack when a valid transaction has completed
   dst_ack_pulse <= dst_valid and dst_ready;

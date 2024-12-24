@@ -15,7 +15,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use work.types_pkg.all;
+use work.type_pkg.all;
 
 entity axil_to_reg is
   port (

@@ -11,11 +11,11 @@
 --##############################################################################
 
 -- TODO: add generic option to define the number of cycles of latency that the
--- sbb interface takes to repond for reads.
+-- sbb interface takes to respond for reads.
 
 library ieee;
 use ieee.std_logic_1164.all;
-use work.types_pkg.all;
+use work.type_pkg.all;
 
 entity apb_to_reg is
   port (

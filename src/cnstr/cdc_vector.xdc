@@ -10,8 +10,8 @@
 # terms of the BSD-2 license: https://opensource.org/license/bsd-2-clause
 ################################################################################
 
-set src_clk [get_clocks -of_objects [get_cell unique_net_src_data*]]
-set dst_clk [get_clocks -of_objects [get_cell unique_net_dst_data*]]
+set src_clk [get_clocks -of_objects [get_ports "src_clk"]]
+set dst_clk [get_clocks -of_objects [get_ports "dst_clk"]]
 
 set period [expr min([get_property PERIOD $src_clk], [get_property PERIOD $dst_clk])]
 
