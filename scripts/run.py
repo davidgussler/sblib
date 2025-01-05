@@ -24,11 +24,13 @@ ROOT_DIR = SCRIPT_DIR.parent
 # Libraries
 src = VU.add_library("src")
 
-# Import src files
+# Import files
 src.add_source_files(ROOT_DIR / "src" / "type_pkg.vhd")
-src.add_source_files(ROOT_DIR / "src" / "cdc_bit.vhd")
-src.add_source_files(ROOT_DIR / "src" / "cdc_pulse.vhd")
-src.add_source_files(ROOT_DIR / "test" / "cdc_pulse_tb.vhd")
+src.add_source_files(ROOT_DIR / "src" / "axis_fifo.vhd")
+src.add_source_files(ROOT_DIR / "test" / "axis_fifo_tb.vhd")
+# src.add_source_files(ROOT_DIR / "src" / "cdc_bit.vhd")
+# src.add_source_files(ROOT_DIR / "src" / "cdc_pulse.vhd")
+# src.add_source_files(ROOT_DIR / "test" / "cdc_pulse_tb.vhd")
 
 # Questa flags
 src.set_compile_option("modelsim.vcom_flags", ["+acc",  "-O0"])

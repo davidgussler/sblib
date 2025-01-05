@@ -1,0 +1,64 @@
+--##############################################################################
+--# File     : conv_pkg.vhd
+--# Author   : David Gussler
+--# Language : VHDL '08
+--# ============================================================================
+--! Convert between sblib types and hdl-modules types
+--# ============================================================================
+--# Copyright (c) 2023-2024, David Gussler. All rights reserved.
+--# You may use, distribute and modify this code under the
+--# terms of the MIT license: https://choosealicense.com/licenses/mit/
+--##############################################################################
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library axi_lite;
+use axi_lite.axi_lite_pkg.all;
+
+use work.type_pkg.all;
+
+package conv_pkg is
+
+  function to_hdlm(axil_req : axil_req_t) return axi_lite_m2s_t;
+  function to_hdlm(axi_lite_s2m : axi_lite_s2m_t) return axil_rsp_t;
+
+end package;
+
+package body conv_pkg is
+
+  function to_hdlm(axil_req : axil_req_t) return axi_lite_m2s_t is
+    variable axi_lite_m2s : axi_lite_m2s_t := axi_lite_m2s_init;
+  begin
+
+    axi_lite_m2s.read.ar.valid := axil_req.arvalid; 
+    axi_lite_m2s.read.ar.addr(AXIL_ADDR_WIDTH - 1 downto 0) := unsigned(axil_req.araddr);
+    axi_lite_m2s.read.r.ready := axil_req.rready ;
+    axi_lite_m2s.write.aw.valid := axil_req.awvalid;  
+    axi_lite_m2s.write.aw.addr(AXIL_ADDR_WIDTH - 1 downto 0) := unsigned(axil_req.awaddr); 
+    axi_lite_m2s.write.w.valid := axil_req.wvalid ; 
+    axi_lite_m2s.write.w.data(AXIL_DATA_WIDTH - 1 downto 0) := axil_req.wdata;
+    axi_lite_m2s.write.w.strb(AXIL_DATA_WIDTH / 8 - 1 downto 0) := axil_req.wstrb;
+    axi_lite_m2s.write.b.ready := axil_req.bready ; 
+
+    return axi_lite_m2s;
+  end function;
+
+  function to_hdlm(axi_lite_s2m : axi_lite_s2m_t) return axil_rsp_t is
+    variable axil_rsp : axil_rsp_t;
+  begin
+
+    axil_rsp.arready := axi_lite_s2m.read.ar.ready ;
+    axil_rsp.rvalid  := axi_lite_s2m.read.r.valid  ;
+    axil_rsp.rdata   := axi_lite_s2m.read.r.data(AXIL_DATA_WIDTH - 1 downto 0);
+    axil_rsp.rresp   := axi_lite_s2m.read.r.resp   ;
+    axil_rsp.awready := axi_lite_s2m.write.aw.ready;
+    axil_rsp.wready  := axi_lite_s2m.write.w.ready ;
+    axil_rsp.bvalid  := axi_lite_s2m.write.b.valid ;
+    axil_rsp.bresp   := axi_lite_s2m.write.b.resp  ;
+
+    return axil_rsp;
+  end function;
+
+end package body;
