@@ -17,6 +17,8 @@ rule:
     indent_style: spaces 
   architecture_003:
     style: allow_comment
+  architecture_024:
+    action: 'remove'
   architecture_025:
     disable: false
     names:
@@ -86,8 +88,12 @@ rule:
     disable: true
   entity_003: 
     style: allow_comment
+  entity_019:
+    action: 'remove'
   function_006:
     style: allow_comment
+  function_020:
+    action: 'remove'
   function_600: 
     disable: false 
     prefix:
@@ -166,6 +172,8 @@ rule:
     style: allow_comment
   process_015:
     style: allow_comment
+  process_018:
+    action: 'remove'
   process_022:
     disable: true
   process_023:
@@ -184,7 +192,7 @@ rule:
   process_036:
     disable: false
     prefixes:
-      - proc_
+      - prc_
   sequential_004:
     align_left: yes
     align_paren: no

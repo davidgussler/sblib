@@ -51,9 +51,9 @@ architecture rtl of cdc_bit is
 
   -- ---------------------------------------------------------------------------
   attribute async_reg                : string;
-  attribute async_reg of sr          : signal is "TRUE";
+  attribute async_reg of cdc_regs     : signal is "TRUE";
   attribute shreg_extract            : string;
-  attribute shreg_extract of sr      : signal is "NO";
+  attribute shreg_extract of cdc_regs  : signal is "NO";
   attribute dont_touch               : string;
   attribute dont_touch of dont_touch_src_bit : signal is "TRUE";
 
