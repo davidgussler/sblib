@@ -4,11 +4,17 @@
 # Language : gnu make
 # ==============================================================================
 # Project maintenance commands
-# ..Windows users: Run from a git bash prompt.
+# ..Windows users: Run from git bash, mysys2, or WSL2 prompt.
 ################################################################################
 
-PRJ_NAME := radlib
+# Project Settings
+PROJ_NAME := sblib
+PART_NUM := xc7z020clg400-1
 
+# Library Version
+# Use semantic versioning with respect to the module HDL interfaces.
+# Update the version and add appropriate notes to the CHANGELOG.md each time 
+# a new library version is tagged and released.
 VER_MAJOR := 0
 VER_MINOR := 1
 VER_PATCH := 0
@@ -61,21 +67,21 @@ package: regs
 
 # Run the VUnit simulation
 sim: regs
-	cd scripts && python sim.py --xunit-xml $(BUILD_DIR)/sim_report.xml -p $(JOBS)
+	cd tools && python sim.py --xunit-xml $(BUILD_DIR)/sim_report.xml -p $(JOBS)
 
 # Check the coding style of the src files
 style:
 	mkdir -p $(BUILD_DIR)
-	vsg -f $(STYLE_SRC) -c ./scripts/vsg_rules.yaml -of vsg --all_phases --quality_report $(BUILD_DIR)/style_report.json
+	vsg -f $(STYLE_SRC) -c ./tools/vsg_rules.yaml -of vsg --all_phases --quality_report $(BUILD_DIR)/style_report.json
 
 # Check AND FIX the coding style of the src files
 style-fix:
 	mkdir -p $(BUILD_DIR)
-	vsg -f $(STYLE_SRC) -c ./scripts/vsg_rules.yaml -of vsg --fix
+	vsg -f $(STYLE_SRC) -c ./tools/vsg_rules.yaml -of vsg --fix
 
 # Generate the register output products
 regs:
-	cd scripts && python regs.py $(REGS_SRC)
+	cd tools && python regs.py $(REGS_SRC)
 
 # Create a new git tag and Github release for this version of the code. A Github
 # action will generate the release from source.

@@ -7,10 +7,6 @@
 --! unrelated single-cycle pulses across clock domains. src_pulse can be
 --! many src_clk cycles long, and dst_pulse will always be one dst_clk cycle
 --! long.
---# ============================================================================
---# Copyright (c) 2024, David Gussler. All rights reserved.
---# You may use, distribute and modify this code under the
---# terms of the MIT license: https://choosealicense.com/licenses/mit/
 --##############################################################################
 
 library ieee;

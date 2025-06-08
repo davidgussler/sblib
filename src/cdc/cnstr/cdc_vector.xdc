@@ -6,8 +6,6 @@
 # Scoped constraint. Use: "read_xdc -ref cdc_vector cdc_vector.xdc"
 ################################################################################
 
-# TODO: FIXME: modify cnstrs to use get_cells instead of get_ports
-
 set src_clk [get_clocks -quiet -of_objects [get_ports "s_clk"]]
 set dst_clk [get_clocks -quiet -of_objects [get_ports "m_clk"]]
 

@@ -1,3 +1,5 @@
+# VHDL Language server
+
 standard = "2008"
 
 [libraries]

@@ -5,7 +5,7 @@
 --# ==========================================================================
 --! Gray code counter synchronizer. The 'src_cnt' input may only increment by
 --! one, decrement by one, or remain the same on each clock cycle to ensure
---! that the count is reliably transfered.
+--! that the count is reliably transferred.
 --#############################################################################
 
 library ieee;

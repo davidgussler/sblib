@@ -85,23 +85,6 @@ def named_config(tb, map : dict):
 # TBs
 ################################################################################
 
-## Super awesome packet protocol
-tb = lib.test_bench('sapp_tb')
-
-packet_modes = [True, False]
-clk_ratios = [100, 99, 101]
-stall_probs = [0, 25]
-link_rates = [0, 1, 3]
-
-for packet_mode, clk_ratio, stall_prob, link_rate in product(packet_modes, clk_ratios, stall_probs, link_rates):
-    named_config(tb, {
-        'G_PACKET_MODE': packet_mode,
-        'G_CLK_RATIO': clk_ratio,
-        'G_AXIS_STALL_PROB': stall_prob,
-        'G_LINK_RATE': link_rate,
-    })
-
-
 ## Stream Pipes
 tb = lib.test_bench('strm_pipes_tb')
 
