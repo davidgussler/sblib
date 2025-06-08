@@ -1,10 +1,10 @@
 ################################################################################
-# File     : stdver.toml
-# Author   : David Gussler
-# Language : HDL-Registers TOML
-#            https://hdl-registers.com/rst/user_guide/getting_started.html
+# File : stdver.toml
+# Auth : David Gussler
+# Lang : HDL-Registers TOML
+#        https://hdl-registers.com/rst/user_guide/getting_started.html
 # ==============================================================================
-# Registers for the stdver, Standard Version, module. These Registers 
+# Registers for the stdver, Standard Version, module. These registers 
 # should be instantiated at the base address of every FPGA design.
 ################################################################################
 
@@ -17,11 +17,9 @@ description = "Scratchpad Register."
 [scratchpad.scratchpad]
 type = "bit_vector"
 width = 32
-default_value = "00010010001101000101011001111000"
+default_value = 0x12345678
 description = """
 Scratchpad that may be used for testing FPGA register access.
-
-Default value = 0x12345678
 """
 
 
@@ -40,17 +38,14 @@ description = "Unique identification number for this fpga."
 [version]
 mode = "r"
 description = """
-Version Register. [Semantic versioning](https://semver.org) is used.
+Version Register. `Semantic versioning <https://semver.org>`_ is used.
 
-Format: 0xZZAABBCC, where
+Format - 8-bit unsigned integers 0xZZAABBCC, where:
 
-- ZZ = build metadata
-
-- AA = major version (0x00 to 0xFF)
-
-- BB = minor version (0x00 to 0xFF)
-
-- CC = patch version (0x00 to 0xFF)
+* ZZ = build metadata
+* AA = major version (0x00 to 0xFF)
+* BB = minor version (0x00 to 0xFF)
+* CC = patch version (0x00 to 0xFF)
 
 If ZZ is anything other than 0x00, then
 this indicates that the build is not a clean, official release build, but 
@@ -81,27 +76,22 @@ width = 5
 [version.dev]
 type = "bit"
 description = """
-1 = Development build. This build is for development and debugging, not for 
-customer release or field use.
-
-0 = Official release build.
+* 1 = Development build. This build is for development and debugging, not for release to the field.
+* 0 = Official release build.
 """
 
 [version.local]
 type = "bit"
 description = """
-1 = FPGA was built by local developer's PC.
-
-0 = FPGA was built by CI server.
+* 1 = FPGA was built on a local developer's PC.
+* 0 = FPGA was built on a CI server.
 """
 
 [version.dirty]
 type = "bit"
 description = """
-1 = FPGA was built from modified source files that were not checked in to
-version control.
-
-0 = FPGA was built from a clean repository.
+* 1 = FPGA was built from modified source files that were not checked in to version control.
+* 0 = FPGA was built from a clean repository.
 """
 
 
@@ -109,16 +99,14 @@ version control.
 [date]
 mode = "r"
 description = """
-Build Date Register - Date the FPGA was built, using the local timezone of
+Build Date Register. Date the FPGA was built, using the local timezone of
 the computer the ran the build.
 
-Format: BCD (Binary coded decimal) 0xYYYYMMDD, where
+Format - BCD (Binary coded decimal) 0xYYYYMMDD, where:
 
-- YYYY = Build year (0 to 9999, but most likely 20XX ;) )
-
-- MM   = Build month (0 to 12)
-
-- DD   = Build day (0 to 31)
+* YYYY = Build year (0 to 9999)
+* MM   = Build month (0 to 12)
+* DD   = Build day (0 to 31)
 """
 
 [date.day]
@@ -141,18 +129,15 @@ description = "Build Year."
 [time]
 mode = "r"
 description = """
-Build Time Register - Time the FPGA was built, using the local timezone of
+Build Time Register. Time the FPGA was built, using the local timezone of
 the computer the ran the build.
 
-Format: BCD (Binary coded decimal) 0x00HHMMSS, where
+Format - BCD (Binary coded decimal) 0x00HHMMSS, where:
 
-- 00 = Not used
-
-- MM = Build hour (0 to 23)
-
-- DD = Build minute (0 to 59)
-
-- SS = Build second (0 to 59)
+* 00 = Unused
+* MM = Build hour (0 to 23)
+* DD = Build minute (0 to 59)
+* SS = Build second (0 to 59)
 """
 
 [time.second]
@@ -180,5 +165,5 @@ description = "Git Hash Register."
 type = "bit_vector"
 width = 32
 description = """
-The 8 left-most characters of the last git hash for this repository.
+The 8 most significant characters of the last git hash for this repository.
 """

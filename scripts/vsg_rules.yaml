@@ -11,6 +11,7 @@ indent:
       semicolon:
         after: current
         token: current
+
 rule:
   global: 
     indent_size: 2
@@ -24,6 +25,9 @@ rule:
     names:
       - rtl
       - tb
+      - sim
+  block_007:
+    action: 'remove'
   block_601:
     disable: false
     prefixes:
@@ -53,6 +57,8 @@ rule:
       - --#
   component_003:
     disable: true
+  component_022:
+    action: remove
   component_018:
     disable: true
   concurrent_003:
@@ -89,17 +95,19 @@ rule:
   entity_003: 
     style: allow_comment
   entity_019:
-    action: 'remove'
+    action: remove
   function_006:
     style: allow_comment
   function_020:
-    action: 'remove'
-  function_600: 
-    disable: false 
-    prefix:
-      - fn_
+    action: remove
+  # function_600: 
+  #   disable: false 
+  #   prefixes:
+  #     - fn_
   generate_004:
     style: allow_comment
+  generate_011:
+    action: remove
   generate_017:
     disable: false
     prefixes:
@@ -147,7 +155,11 @@ rule:
   package_011:
     disable: true
   package_012:
-    disable: true 
+    disable: true
+  package_014:
+    action: remove
+  package_body_003:
+    action: remove
   package_body_600:
     disable: false 
     suffixes:
@@ -168,12 +180,16 @@ rule:
   # port_602:
   #   disable: false
   #   prefixes: ['io_']
+  procedure_014:
+    action: remove
   procedure_200:
     style: allow_comment
+  process_010:
+    disable: true
   process_015:
     style: allow_comment
   process_018:
-    action: 'remove'
+    action: remove
   process_022:
     disable: true
   process_023:
@@ -193,9 +209,13 @@ rule:
     disable: false
     prefixes:
       - prc_
+  record_type_definition_005:
+    action: remove
   sequential_004:
     align_left: yes
     align_paren: no
+  sequential_401:
+    disable: true
   sequential_009:
     first_paren_new_line: no
     assign_on_single_line: ignore

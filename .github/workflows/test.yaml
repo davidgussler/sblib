@@ -1,0 +1,104 @@
+name: test
+
+
+# ------------------------------------------------------------------------------
+on:
+  # Run when a pull request is opened or updated.
+  pull_request:
+  # Add possibility of running manually from webpage.
+  workflow_dispatch:
+  # Run from main when a pull request is merged.
+  push:
+    branches:
+      - main
+  # Run nightly at 06:45 UTC (1:45 AM EST).
+  schedule:
+  - cron: 45 06 * * *
+
+
+# ------------------------------------------------------------------------------
+# Cancel in-progress runs when a new workflow with the same group name is triggered.
+# https://www.meziantou.net/how-to-cancel-github-workflows-when-pushing-new-commits-on-a-branch.htm
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+  
+
+# ------------------------------------------------------------------------------
+jobs:
+
+  # ----------------------------------------------------------------------------
+  sim:
+    name: Simulate
+    runs-on: ubuntu-24.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Python packages
+      run: |
+        python3 -m pip install \
+          hdl_registers==8.0.0 \
+          vsg==3.30.0 \
+          vunit_hdl==5.0.0.dev6
+
+    - name: Setup GHDL
+      uses: ghdl/setup-ghdl@v1
+      with:
+        version: nightly
+        backend: mcode
+
+    - name: Set VUnit simulator env variable
+      run: |
+        echo "VUNIT_SIMULATOR=ghdl" >> "$GITHUB_ENV"
+
+    - name: Run simulation
+      run: |
+        make tool-check
+        make sim
+
+    - name: Archive simulation results
+      uses: actions/upload-artifact@v4
+      with:
+        name: sim-results
+        path: |
+          build/sim_report.xml
+
+  # ----------------------------------------------------------------------------
+  style:
+    name: Style
+    runs-on: ubuntu-24.04
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Python packages
+      run: |
+        python3 -m pip install \
+          hdl_registers==8.0.0 \
+          vsg==3.30.0 \
+          vunit_hdl==5.0.0.dev6
+
+    - name: Run style check
+      run: |
+        make tool-check
+        make style
+
+    - name: Archive simulation results
+      uses: actions/upload-artifact@v4
+      with:
+        name: style-results
+        path: |
+          build/style_report.json

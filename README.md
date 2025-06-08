@@ -1,2 +1,1 @@
-# sblib
-Shrikebyte VHDL library
+# Rapid Automation Design HDL Library
