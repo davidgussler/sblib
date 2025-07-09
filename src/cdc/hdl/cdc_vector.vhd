@@ -41,11 +41,6 @@ architecture rtl of cdc_vector is
   signal dst_req_pulse : std_logic;
   signal dst_ack_pulse : std_logic;
 
--- ---------------------------------------------------------------------------
--- attribute dont_touch                        : string;
--- attribute dont_touch of src_data_ff : signal is "TRUE";
--- attribute dont_touch of dst_data_int : signal is "TRUE";
-
 begin
 
   -- Registers to help determine if a new request is active
@@ -73,7 +68,8 @@ begin
     dst_pulse(0) => dst_req_pulse
   );
 
-  -- Hold destination valid high until destination is ready to accept transation
+  -- Hold destination valid high until destination is ready to accept
+  -- transaction
   prc_hold_valid : process (m_clk) is begin
     if rising_edge(m_clk) then
       if dst_req_pulse then

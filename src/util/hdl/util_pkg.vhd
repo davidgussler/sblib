@@ -127,6 +127,20 @@ package util_pkg is
   type reg_rsp_arr_t is array (natural range <>) of reg_rsp_t;
 
   -- ---------------------------------------------------------------------------
+  -- Transaction type
+  type bus_cmd_t is (BUS_WRITE, BUS_CHECK);
+
+  type bus_xact_t is record
+    cmd   : bus_cmd_t;
+    wstrb : std_logic_vector( 3 downto 0);
+    addr  : std_logic_vector(31 downto 0);
+    data  : std_logic_vector(31 downto 0);
+    mask  : std_logic_vector(31 downto 0);
+  end record;
+
+  type bus_xact_arr_t is array (natural range <>) of bus_xact_t;
+
+  -- ---------------------------------------------------------------------------
   -- Array types
   type sl_arr_t is array (natural range <>) of std_logic;
 

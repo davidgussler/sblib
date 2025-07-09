@@ -20,10 +20,6 @@
 --! Writes are prioritized over reads, therefore, if the axi lite interface
 --! issues back-to-back writes and a read at the same time, the read will not
 --! get executed until the write requests stop.
---! TODO: Add a generic that causes reads and writes to swap priority after
---! each transaction.
---! TODO: Add a generic that adds an optional timeout as to not hang the AXI
---! bus if the Wishbone slave never responds.
 --##############################################################################
 
 library ieee;

@@ -4,10 +4,8 @@
 --# Lang : VHDL '08
 --# ============================================================================
 --! AXI Lite crossbar.
---! Designed for simplicity and low area utilization. Only supports one
+--! Designed for simplicity and low area. Only supports one
 --! transaction at a time.
---!
---! TODO: INCOMPLETE
 --##############################################################################
 
 library ieee;
@@ -18,7 +16,7 @@ entity axil_xbar is
   generic (
     G_NUM_MASTERS : positive;
     G_NUM_SLAVES  : positive;
-    G_BASEADDRS   : slv_arr_t(0 to G_NUM_SLAVES)(AXIL_ADDR_WIDTH - 1 downto 0)
+    G_BASEADDRS   : slv_arr_t(0 to G_NUM_SLAVES - 1)(AXIL_ADDR_WIDTH - 1 downto 0)
   );
   port (
     clk        : in    std_logic;

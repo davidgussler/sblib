@@ -119,14 +119,14 @@ architecture rtl of axil_decoder is
   signal wr_decoded_idx : natural range 0 to DECODE_ERR;
   signal rd_decoded_idx : natural range 0 to DECODE_ERR;
 
-  type   wr_state_t is (WR_ST_IDLE, WR_ST_WRITING, WR_ST_DECODE_ERR_W, WR_ST_DECODE_ERR_B);
+  type   wr_state_t is (ST_WR_IDLE, ST_WR_WRITING, ST_WR_DECODE_ERR_W, ST_WR_DECODE_ERR_B);
   signal wr_state           : wr_state_t;
   signal wr_select          : natural range 0 to SLAVE_NOT_SELECTED_IDX;
   signal wr_dec_err_awready : std_logic;
   signal wr_dec_err_wready  : std_logic;
   signal wr_dec_err_bvalid  : std_logic;
 
-  type   rd_state_t is (RD_ST_IDLE, RD_ST_READING, RD_ST_DECODE_ERR);
+  type   rd_state_t is (ST_RD_IDLE, ST_RD_READING, ST_RD_DECODE_ERR);
   signal rd_state           : rd_state_t;
   signal rd_select          : natural range 0 to SLAVE_NOT_SELECTED_IDX;
   signal rd_dec_err_arready : std_logic;
@@ -142,39 +142,39 @@ begin
   prc_wr_select : process (clk) is begin
     if rising_edge(clk) then
       case wr_state is
-        when WR_ST_IDLE =>
+        when ST_WR_IDLE =>
           if s_axil_req.awvalid then
             if wr_decoded_idx = DECODE_ERR then
               wr_dec_err_awready <= '1';
               wr_dec_err_wready  <= '1';
               wr_select          <= SLAVE_DECODE_ERR_IDX;
-              wr_state           <= WR_ST_DECODE_ERR_W;
+              wr_state           <= ST_WR_DECODE_ERR_W;
             else
               wr_select <= wr_decoded_idx;
-              wr_state  <= WR_ST_WRITING;
+              wr_state  <= ST_WR_WRITING;
             end if;
           end if;
 
-        when WR_ST_DECODE_ERR_W =>
+        when ST_WR_DECODE_ERR_W =>
           wr_dec_err_awready <= '0';
 
           if s_axil_req.wvalid and s_axil_rsp.wready then
             wr_dec_err_wready <= '0';
             wr_dec_err_bvalid <= '1';
-            wr_state          <= WR_ST_DECODE_ERR_B;
+            wr_state          <= ST_WR_DECODE_ERR_B;
           end if;
 
-        when WR_ST_DECODE_ERR_B =>
+        when ST_WR_DECODE_ERR_B =>
           if s_axil_rsp.bvalid and s_axil_req.bready then
             wr_dec_err_bvalid <= '0';
             wr_select         <= SLAVE_NOT_SELECTED_IDX;
-            wr_state          <= WR_ST_IDLE;
+            wr_state          <= ST_WR_IDLE;
           end if;
 
-        when WR_ST_WRITING =>
+        when ST_WR_WRITING =>
           if s_axil_rsp.bvalid and s_axil_req.bready then
             wr_select <= SLAVE_NOT_SELECTED_IDX;
-            wr_state  <= WR_ST_IDLE;
+            wr_state  <= ST_WR_IDLE;
           end if;
         when others =>
           null;
@@ -185,7 +185,7 @@ begin
         wr_dec_err_wready  <= '0';
         wr_dec_err_bvalid  <= '0';
         wr_select          <= SLAVE_NOT_SELECTED_IDX;
-        wr_state           <= WR_ST_IDLE;
+        wr_state           <= ST_WR_IDLE;
       end if;
     end if;
   end process;
@@ -194,32 +194,32 @@ begin
   prc_rd_select : process (clk) is begin
     if rising_edge(clk) then
       case rd_state is
-        when RD_ST_IDLE =>
+        when ST_RD_IDLE =>
           if s_axil_req.arvalid then
             if rd_decoded_idx = DECODE_ERR then
               rd_dec_err_arready <= '1';
               rd_dec_err_rvalid  <= '1';
               rd_select          <= SLAVE_DECODE_ERR_IDX;
-              rd_state           <= RD_ST_DECODE_ERR;
+              rd_state           <= ST_RD_DECODE_ERR;
             else
               rd_select <= rd_decoded_idx;
-              rd_state  <= RD_ST_READING;
+              rd_state  <= ST_RD_READING;
             end if;
           end if;
 
-        when RD_ST_DECODE_ERR =>
+        when ST_RD_DECODE_ERR =>
           rd_dec_err_arready <= '0';
 
           if s_axil_rsp.rvalid and s_axil_req.rready then
             rd_dec_err_rvalid <= '0';
             rd_select         <= SLAVE_NOT_SELECTED_IDX;
-            rd_state          <= RD_ST_IDLE;
+            rd_state          <= ST_RD_IDLE;
           end if;
 
-        when RD_ST_READING =>
+        when ST_RD_READING =>
           if s_axil_rsp.rvalid and s_axil_req.rready then
             rd_select <= SLAVE_NOT_SELECTED_IDX;
-            rd_state  <= RD_ST_IDLE;
+            rd_state  <= ST_RD_IDLE;
           end if;
         when others =>
           null;
@@ -229,7 +229,7 @@ begin
         rd_dec_err_arready <= '0';
         rd_dec_err_rvalid  <= '0';
         rd_select          <= SLAVE_NOT_SELECTED_IDX;
-        rd_state           <= RD_ST_IDLE;
+        rd_state           <= ST_RD_IDLE;
       end if;
     end if;
   end process;
@@ -275,7 +275,7 @@ begin
   end process;
 
   -- ---------------------------------------------------------------------------
-  prc_assign_reqs : process (all) is begin
+  prc_assign_req : process (all) is begin
     for slave in 0 to G_NUM_SLAVES - 1 loop
 
       m_axil_req(slave) <= s_axil_req;

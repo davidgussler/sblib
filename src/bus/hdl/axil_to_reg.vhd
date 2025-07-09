@@ -4,7 +4,7 @@
 --# Lang : VHDL '08
 --# ============================================================================
 --! AXI lite to register bus bridge.
---! This bridge supports full thruput to a simplified bus with a fixed read
+--! This bridge supports full thruput to a simplified bus with fixed read
 --! latency.
 --##############################################################################
 
