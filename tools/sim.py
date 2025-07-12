@@ -1,4 +1,3 @@
-
 from vunit import VUnit
 from pathlib import Path
 import os
@@ -11,8 +10,8 @@ ROOT_DIR = SCRIPT_DIR.parent
 
 class Simulator(Enum):
     GHDL = 1
-    MODELSIM = 2
-    NVC = 3
+    NVC = 2
+    QUESTASIM = 3
 
 #Execute from script directory
 os.chdir(SCRIPT_DIR)
@@ -26,20 +25,20 @@ GUI = False
 # Simulator Selection
 # ..The environment variable VUNIT_SIMULATOR has precedence over the commandline
 # options.
-if "--modelsim" in sys.argv:    
-    SIMULATOR = Simulator.MODELSIM
-    argv.remove("--modelsim")
-if "--nvc" in sys.argv:
-    SIMULATOR = Simulator.NVC
-    argv.remove("--nvc")
 if "--ghdl" in sys.argv:
     SIMULATOR = Simulator.GHDL
     argv.remove("--ghdl")
+if "--nvc" in sys.argv:
+    SIMULATOR = Simulator.NVC
+    argv.remove("--nvc")
+if "--questasim" in sys.argv:    
+    SIMULATOR = Simulator.QUESTASIM
+    argv.remove("--questasim")
 if "--coverage" in sys.argv:
     USE_COVERAGE = True
     argv.remove("--coverage")
-    if SIMULATOR != Simulator.MODELSIM:
-        raise "Coverage is only allowed with --modelsim"
+    if SIMULATOR != Simulator.QUESTASIM:
+        raise "Coverage is only allowed with --questasim"
 if "--gui" in sys.argv:
     GUI = True
 
@@ -50,7 +49,7 @@ if 'VUNIT_SIMULATOR' not in os.environ:
     elif SIMULATOR == Simulator.NVC:
         os.environ['VUNIT_SIMULATOR'] = 'nvc'
     else:
-        os.environ['VUNIT_SIMULATOR'] = 'modelsim'
+        os.environ['VUNIT_SIMULATOR'] = 'questasim'
 
 # Parse VUnit Arguments
 vu = VUnit.from_argv(argv=argv)
@@ -82,7 +81,7 @@ def named_config(tb, map : dict):
 
 
 ################################################################################
-# TBs
+# TB definitions and generic permutations
 ################################################################################
 
 ## Stream Pipes
@@ -169,11 +168,10 @@ lib.add_compile_option('nvc.a_flags', ['--relaxed'])
 lib.set_sim_option('ghdl.elab_flags', ['-frelaxed'])
 lib.set_sim_option('nvc.heap_size', '5000M')
 
+
 # Enable debugging options if we are viewing waveforms with the gui
-#if GUI:
-    # lib.add_compile_option("modelsim.vcom_flags", ["+acc",  "-O0"])
-    # lib.set_sim_option('ghdl.elab_flags', ['--fst='])
-    
+if GUI:
+    lib.add_compile_option("modelsim.vcom_flags", ["+acc",  "-O0"])
 
 
 if USE_COVERAGE:
