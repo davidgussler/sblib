@@ -1,6 +1,6 @@
-# Shrikebyte HDL Library
+# Shrikebyte Open Source HDL Library
 
-This repository holds Shrikebyte's open-source VHDL library, which consists of
+This repository holds Shrikebyte's public, open source, VHDL library of
 generic and reusable HDL building blocks.
 
 ## Getting Started
