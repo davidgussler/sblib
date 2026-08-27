@@ -220,30 +220,58 @@ begin
       end if;
 
       for k in 0 to num_bytes_in_this_beat - 1 loop
-        check_equal(
-          u_unsigned(int_axis_tdata((k + 1) * DBW - 1 downto k * DBW)),
-          get(data_packet, i + k),
-          (
-            BASE_ERROR_MESSAGE &
-            "'tdata' check at packet_idx=" &
-            to_string(num_packets_checked) &
-            ", byte_idx=" &
-            to_string(i)
-          )
-        );
-
-        if G_ENABLE_TUSER then
+        if is_signed(data_packet) then
           check_equal(
-            u_unsigned(int_axis_tuser((k + 1) * UBW - 1 downto k * UBW)),
-            get(user_packet, i + k),
+            signed(int_axis_tdata((k + 1) * DBW - 1 downto k * DBW)),
+            get(data_packet, i + k),
             (
               BASE_ERROR_MESSAGE &
-              "'tuser' check at packet_idx=" &
+              "'tdata' check at packet_idx=" &
               to_string(num_packets_checked) &
               ", byte_idx=" &
               to_string(i)
             )
           );
+        else
+          check_equal(
+            unsigned(int_axis_tdata((k + 1) * DBW - 1 downto k * DBW)),
+            get(data_packet, i + k),
+            (
+              BASE_ERROR_MESSAGE &
+              "'tdata' check at packet_idx=" &
+              to_string(num_packets_checked) &
+              ", byte_idx=" &
+              to_string(i)
+            )
+          );
+        end if;
+
+        if G_ENABLE_TUSER then
+          if is_signed(user_packet) then
+            check_equal(
+              signed(int_axis_tuser((k + 1) * UBW - 1 downto k * UBW)),
+              get(user_packet, i + k),
+              (
+                BASE_ERROR_MESSAGE &
+                "'tuser' check at packet_idx=" &
+                to_string(num_packets_checked) &
+                ", byte_idx=" &
+                to_string(i)
+              )
+            );
+          else
+            check_equal(
+              unsigned(int_axis_tuser((k + 1) * UBW - 1 downto k * UBW)),
+              get(user_packet, i + k),
+              (
+                BASE_ERROR_MESSAGE &
+                "'tuser' check at packet_idx=" &
+                to_string(num_packets_checked) &
+                ", byte_idx=" &
+                to_string(i)
+              )
+            );
+          end if;
         end if;
 
       end loop;

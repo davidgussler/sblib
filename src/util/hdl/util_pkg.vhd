@@ -18,6 +18,12 @@ package util_pkg is
 
   -- ---------------------------------------------------------------------------
   -- Array types
+  -- NOTICE: sl_arr_t is functionally identical to std_ulogic_vector,
+  --   but its still a useful type for communicating design intent that
+  --   the signal is an unassociated array of individual bits, typically using
+  --   the "to" direction rather than "downto". std_ulogic_vector is more often
+  --   treated as an associated bus using "downto".
+  type sl_arr_t is array(natural range <>) of std_ulogic;
   type slv_arr_t is array(natural range <>) of std_ulogic_vector;
   type unsigned_arr_t is array(natural range <>) of u_unsigned;
   type signed_arr_t is array(natural range <>) of u_signed;

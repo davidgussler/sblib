@@ -77,14 +77,14 @@ begin
 
     gen_out_reg : if G_OUT_REG generate
 
-      signal cnt : integer range 0 to G_DEPTH - 1;
+      signal cnt : integer range 0 to G_DEPTH;
 
     begin
 
       prc_out_reg : process (clk) is begin
         if rising_edge(clk) then
           if en then
-            if cnt = (G_DEPTH - 1) then
+            if cnt = G_DEPTH then
               q <= sr(G_DEPTH - 1);
             else
               cnt <= cnt + 1;
