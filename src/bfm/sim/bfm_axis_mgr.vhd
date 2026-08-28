@@ -127,8 +127,6 @@ begin
     variable user_packet              : integer_array_t := null_integer_array;
     variable packet_length_bytes      : positive        := 1;
     variable user_packet_length_bytes : positive        := 1;
-    variable data_value               : natural         := 0;
-    variable user_value               : natural         := 0;
     variable i                        : natural         := 0;
     variable seed                     : string_seed_t;
     variable rnd                      : randomptype;
@@ -176,12 +174,18 @@ begin
         for k in 0 to num_bytes_in_this_beat - 1 loop
           int_axis_tkeep(k) <= '1';
 
-          data_value                                       := get(data_packet, i + k);
-          int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(to_unsigned(data_value, DBW));
+          if is_signed(data_packet) then
+            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(to_signed(get(data_packet, i + k), DBW));
+          else
+            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(to_unsigned(get(data_packet, i + k), DBW));
+          end if;
 
           if G_ENABLE_TUSER then
-            user_value                                       := get(user_packet, i + k);
-            int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(to_unsigned(user_value, UBW));
+            if is_signed(user_packet) then
+              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(to_signed(get(user_packet, i + k), UBW));
+            else
+              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(to_unsigned(get(user_packet, i + k), UBW));
+            end if;
           end if;
         end loop;
 
