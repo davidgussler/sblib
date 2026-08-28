@@ -175,16 +175,24 @@ begin
           int_axis_tkeep(k) <= '1';
 
           if is_signed(data_packet) then
-            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(to_signed(get(data_packet, i + k), DBW));
+            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(
+                to_signed(get(data_packet, i + k), DBW)
+              );
           else
-            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(to_unsigned(get(data_packet, i + k), DBW));
+            int_axis_tdata((k + 1) * DBW - 1 downto k * DBW) <= std_ulogic_vector(
+                to_unsigned(get(data_packet, i + k), DBW)
+              );
           end if;
 
           if G_ENABLE_TUSER then
             if is_signed(user_packet) then
-              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(to_signed(get(user_packet, i + k), UBW));
+              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(
+                  to_signed(get(user_packet, i + k), UBW)
+                );
             else
-              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(to_unsigned(get(user_packet, i + k), UBW));
+              int_axis_tuser((k + 1) * UBW - 1 downto k * UBW) <= std_ulogic_vector(
+                  to_unsigned(get(user_packet, i + k), UBW)
+                );
             end if;
           end if;
         end loop;
