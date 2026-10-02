@@ -65,18 +65,18 @@ Read & write definition for each bit:
 ################################################################################
 [dout]
 description = "Output Data Register"
-mode = "r_wpulse"
+mode = "r_w"
 
 dout.type = "bit_vector"
 dout.width = 32
 dout.description = """
-Data written to this register is output at the GPIO channel's output port.
+Data written to this register is placed on the GPIO channel's output port.
 
 The default value of this register is hard-coded by the FPGA. Ignore the generic
 default value given in this register description (it is overridden in the FPGA).
-Additional documentation must be provided by the firmware designer that gives
+Additional documentation must be provided by the FPGA designer that gives
 the true default value and for the mapping of these register bits to FPGA
-signals, because these settings could change for different firmware builds.
+signals, because these settings could change for different FPGA builds.
 """
 
 ################################################################################
@@ -96,7 +96,7 @@ signals, because these settings could change for different firmware builds.
 
 ################################################################################
 [tri]
-mode = "r_wpulse"
+mode = "r_w"
 description = "Tri-state (Input) Enable Register"
 
 tri.type = "bit_vector"
@@ -109,7 +109,7 @@ Read & write definition for each bit:
 
 The default value of this register is hard-coded by the FPGA. Ignore the generic
 default value given in this register description (it is overridden in the FPGA).
-Additional documentation must be provided by the firmware designer that gives
+Additional documentation must be provided by the FPGA designer that gives
 the true default value and for the mapping of these register bits to FPGA
-signals, because these settings could change for different firmware builds.
+signals, because these settings could change for different FPGA builds.
 """

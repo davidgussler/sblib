@@ -1,3 +1,4 @@
-hdl_registers==8.1.0
+#hdl_registers==8.1.0
+git+https://github.com/hdl-registers/hdl-registers#egg=hdl_registers
 vsg==3.35.0
-vunit_hdl==5.0.0.dev8
+vunit_hdl==5.0.0.dev9

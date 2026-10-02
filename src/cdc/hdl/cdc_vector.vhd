@@ -24,13 +24,13 @@ entity cdc_vector is
   );
   port (
     src_clk   : in    std_ulogic;
-    src_ready : out   std_ulogic := '1';
     src_valid : in    std_ulogic := '1';
+    src_ready : out   std_ulogic := '1';
     src_data  : in    std_ulogic_vector(G_WIDTH - 1 downto 0);
     --
     dst_clk   : in    std_ulogic;
-    dst_ready : in    std_ulogic := '1';
     dst_valid : out   std_ulogic := '0';
+    dst_ready : in    std_ulogic := '1';
     dst_data  : out   std_ulogic_vector(G_WIDTH - 1 downto 0)
   );
 end entity;

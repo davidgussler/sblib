@@ -41,6 +41,16 @@ end entity;
 
 architecture rtl of gpio_axil is
 
+  -- Override the hdl_registers default values for gpio_o and gpio_t with
+  -- generics
+  constant GPIO_REGISTERS_RESET : gpio_registers_t := (
+    isr  => gpio_isr_init,
+    ier  => gpio_ier_init,
+    dout => (dout => unsigned(G_RST_VAL_O)),
+    din  => gpio_din_init,
+    tri  => (tri => unsigned(G_RST_VAL_T))
+  );
+
   signal u : gpio_regs_up_t;
   signal d : gpio_regs_down_t;
   signal r : gpio_reg_was_read_t;
@@ -54,6 +64,9 @@ begin
 
   -- ---------------------------------------------------------------------------
   u_reg_file : entity work.gpio_register_file_axi_lite
+  generic map (
+    DEFAULT_VALUES => gpio_registers_reset
+  )
   port map (
     clk             => clk,
     reset           => srst,
@@ -113,26 +126,7 @@ begin
 
   u.isr.isr <= unsigned(irq_sts);
   u.din.din <= unsigned(gpio_in);
-
-  -- ---------------------------------------------------------------------------
-  prc_sticky_regs : process (clk) is begin
-    if rising_edge(clk) then
-      if w.dout then
-        gpio_o <= std_logic_vector(d.dout.dout);
-      end if;
-
-      if w.tri then
-        gpio_t <= std_logic_vector(d.tri.tri);
-      end if;
-
-      if srst then
-        gpio_o <= G_RST_VAL_O;
-        gpio_t <= G_RST_VAL_T;
-      end if;
-    end if;
-  end process;
-
-  u.dout.dout <= unsigned(gpio_o);
-  u.tri.tri   <= unsigned(gpio_t);
+  gpio_o    <= std_logic_vector(d.dout.dout);
+  gpio_t    <= std_logic_vector(d.tri.tri);
 
 end architecture;
