@@ -179,6 +179,14 @@ package util_pkg is
     char : character
   ) return boolean;
 
+  function hex_to_int (
+    char : character
+  ) return natural;
+
+  function int_to_hex (
+    val : natural range 0 to 15
+  ) return character;
+
 end package;
 
 package body util_pkg is
@@ -620,7 +628,7 @@ package body util_pkg is
       when 'E' | 'e' => return x"E";
       when 'F' | 'f' => return x"F";
       when others =>
-        report "hex_to_nibble: Invalid hex character '" & char & "'"
+        report "hex_to_nibble: Invalid hex character input '" & char & "'"
           severity warning;
         return x"0";
     end case;
@@ -649,7 +657,7 @@ package body util_pkg is
       when x"E" => return 'E';
       when x"F" => return 'F';
       when others =>
-        report "hex_to_nibble: Invalid hex nibble '" & to_hstring(nibble) & "'"
+        report "nibble_to_hex: Invalid hex nibble input '" & to_hstring(nibble) & "'"
           severity warning;
         return '0';
     end case;
@@ -665,6 +673,64 @@ package body util_pkg is
            'a' | 'B' | 'b' | 'C' | 'c' | 'D' | 'd' | 'E' | 'e' | 'F' | 'f'
                   => return true;
       when others => return false;
+    end case;
+
+  end function;
+
+  function hex_to_int (
+    char : character
+  ) return natural is
+  begin
+    case char is
+      when '0' => return 0;
+      when '1' => return 1;
+      when '2' => return 2;
+      when '3' => return 3;
+      when '4' => return 4;
+      when '5' => return 5;
+      when '6' => return 6;
+      when '7' => return 7;
+      when '8' => return 8;
+      when '9' => return 9;
+      when 'A' | 'a' => return 10;
+      when 'B' | 'b' => return 11;
+      when 'C' | 'c' => return 12;
+      when 'D' | 'd' => return 13;
+      when 'E' | 'e' => return 14;
+      when 'F' | 'f' => return 15;
+      when others =>
+        report "hex_to_int: Invalid hex character '" & char & "'"
+          severity warning;
+        return 0;
+    end case;
+
+  end function;
+
+  function int_to_hex (
+    val : natural range 0 to 15
+  ) return character is
+  begin
+    case val is
+      when 0 => return '0';
+      when 1 => return '1';
+      when 2 => return '2';
+      when 3 => return '3';
+      when 4 => return '4';
+      when 5 => return '5';
+      when 6 => return '6';
+      when 7 => return '7';
+      when 8 => return '8';
+      when 9 => return '9';
+      when 10 => return 'A';
+      when 11 => return 'B';
+      when 12 => return 'C';
+      when 13 => return 'D';
+      when 14 => return 'E';
+      when 15 => return 'F';
+      when others =>
+        report "int_to_hex: Invalid hex nibble '" & integer'image(val) & "'"
+          severity warning;
+        return '0';
     end case;
 
   end function;

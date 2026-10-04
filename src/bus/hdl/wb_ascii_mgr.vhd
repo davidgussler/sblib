@@ -20,12 +20,12 @@
 --#
 --# | Command         | Command Format      | Success Resp  | Fail Resp |
 --# |-----------------|---------------------|---------------|-----------|
+--# | Mode            | m <0|1|2>           | +             | !         |
 --# | Read            | r aaaaaaaa          | dddddddd      | !         |
 --# | Write           | w aaaaaaaa dddddddd | +             | !         |
 --# | Read Increment  | g                   | dddddddd      | !         |
 --# | Write Increment | s dddddddd          | +             | !         |
 --# | Previous        | p                   | + or dddddddd | !         |
---# | Mode            | m <0|1|2> --TODO--  | +             | !         |
 --#
 --# The protocol was designed to work equally well with an interactive terminal
 --# or a scripted software parser. An interactive terminal could be used
@@ -33,19 +33,21 @@
 --# to programmatically interface with the device, for example, as a layer
 --# between the hardware and a GUI.
 --#
+--# * Mode (m) - Data granularity mode
+--#     0 = 8-bit data; All address bits are used
+--#     1 = 16-bit data; Least significant address bit is ignored
+--#     2 = 32-bit data (default); Least two significant address bits are ignored
 --# * Read (r) - Read data from an address
 --# * Write (w) - Write data to an address
---# * Read Increment (g) - Read from the last command's address + 4
---# * Write Increment (s) - Write to the last command's address + 4
---# * Mode (m) - 0 = 8-bit data; 1 = 16-bit data; 2 = 32-bit data
---#     Mode 2 is the default.
+--# * Read Increment (g) - Read from the last command's address + 2^mode
+--# * Write Increment (s) - Write to the last command's address + 2^mode
 --# * Previous (p) - Re-run the previous command. If the last command was an
 --#     increment command, then the address is NOT incremented again.
 --# * Previous and increment commands default to using address and data of 0x0
 --#   if no previous read or write commands have been issued.
 --# * 'aaaaaaaa' is a 32-bit hex formatted address. It can be anywhere
 --#    from 1 to 8 characters.
---# * 'dddddddd' is a 32-bit hex formatted data value. It can be anywhere
+--# * 'dddddddd' is hex formatted data value. It can be anywhere
 --#    from 1 to 8 characters.
 --# * '+' is a write success response, returned by the FPGA.
 --# * '!' is a bus error response, returned by the FPGA.
@@ -70,7 +72,7 @@
 --# --------+-------------------------------------------------------------------
 --# s_axis    ASCII command received by this module and sent by the user port
 --# --------+-------------------------------------------------------------------
---# tdata   | ASCII response.
+--# tdata   | ASCII command.
 --# tkeep   | Unused.
 --# tlast   | Unused.
 --# tuser   | Unused.
@@ -114,32 +116,34 @@ end entity;
 
 architecture rtl of wb_ascii_mgr is
 
-  constant BITS_PER_CHAR  : positive := 4;
-  constant CHARS_PER_ADDR : positive := AXIL_ADDR_WIDTH / BITS_PER_CHAR;
-  constant CHARS_PER_DATA : positive := AXIL_DATA_WIDTH / BITS_PER_CHAR;
+  constant CHARS_PER_WORD : positive := 8;
 
   type   state_t is (
-    ST_RESET, ST_IDLE, ST_RX_DELIM0, ST_RX_ADDR, ST_RX_DELIM1, ST_RX_DATA,
-    ST_BUS_START, ST_BUS_RESP, ST_TX_DATA, ST_SYNTAX_ERR, ST_DONE, ST_DONE1
+    ST_RESET, ST_IDLE, ST_RX_DELIM0, ST_RX_MODE, ST_RX_ADDR, ST_RX_DELIM1,
+    ST_RX_DATA, ST_BUS_START, ST_BUS_RESP, ST_TX_DATA, ST_SYNTAX_ERR, ST_DONE,
+    ST_DONE1
   );
   signal state : state_t;
 
-  signal rx_char   : character;
-  signal addr_incr : std_ulogic_vector(AXIL_ADDR_RANGE);
-  signal wen_prev  : std_ulogic;
-  signal addr_prev : std_ulogic_vector(AXIL_ADDR_RANGE);
-  signal wdat_prev : std_ulogic_vector(AXIL_DATA_RANGE);
-  signal rdat      : std_ulogic_vector(AXIL_DATA_RANGE);
-  signal cnt       : unsigned(clog2(maximum(CHARS_PER_ADDR, CHARS_PER_DATA)) downto 0);
+  signal rx_char        : character;
+  signal addr_incr      : std_ulogic_vector(AXIL_ADDR_RANGE);
+  signal wen_prev       : std_ulogic;
+  signal addr_prev      : std_ulogic_vector(AXIL_ADDR_RANGE);
+  signal wdat_prev      : std_ulogic_vector(AXIL_DATA_RANGE);
+  signal rdat           : std_ulogic_vector(AXIL_DATA_RANGE);
+  signal cnt            : unsigned(clog2(CHARS_PER_WORD) downto 0);
+  signal mode           : integer range 0 to 2;
+  signal mode_cmd       : std_ulogic;
+  signal chars_per_data : integer range 2 to CHARS_PER_WORD;
 
 begin
 
-  m_axis.tkeep <= (others => '1');
-  m_axis.tlast <= '1';
-  m_axis.tuser <= (others => '0');
-  m_wb.wsel    <= (others => '1');
-  rx_char      <= to_char(s_axis.tdata);
-  addr_incr    <= std_ulogic_vector(unsigned(addr_prev) + AXIL_STRB_WIDTH);
+  m_axis.tkeep   <= (others => '1');
+  m_axis.tlast   <= '1';
+  m_axis.tuser   <= (others => '0');
+  rx_char        <= to_char(s_axis.tdata);
+  addr_incr      <= std_ulogic_vector(unsigned(addr_prev) + (2 ** mode));
+  chars_per_data <= (2 ** mode) * 2;
 
   prc_fsm : process (clk) is begin
     if rising_edge(clk) then
@@ -151,6 +155,7 @@ begin
 
         -- ---------------------------------------------------------------------
         when ST_IDLE =>
+          mode_cmd <= '0';
           if s_axis.tvalid then
             case rx_char is
 
@@ -187,6 +192,11 @@ begin
                 m_wb.wdat <= wdat_prev;
                 state     <= ST_BUS_START;
 
+              -- Select data mode
+              when 'M' | 'm' =>
+                mode_cmd <= '1';
+                state    <= ST_RX_DELIM0;
+
               -- Ignore whitespace
               when ' ' | HT | CR => null;
 
@@ -213,7 +223,11 @@ begin
 
               -- Delimiter
               when ' ' | HT =>
-                state <= ST_RX_ADDR;
+                if mode_cmd then
+                  state <= ST_RX_MODE;
+                else
+                  state <= ST_RX_ADDR;
+                end if;
 
               -- Unexpected early return
               when LF =>
@@ -233,17 +247,55 @@ begin
           end if;
 
         -- ---------------------------------------------------------------------
+        when ST_RX_MODE =>
+          if s_axis.tvalid then
+            -- Overflow
+            if cnt = 2 then
+              state <= ST_SYNTAX_ERR;
+            end if;
+
+            case rx_char is
+              when '0' | '1' | '2' =>
+                mode <= hex_to_int(rx_char);
+                cnt  <= cnt + 1;
+
+              -- Ignore whitespace
+              when ' ' | HT | CR => null;
+
+              when LF =>
+                s_axis.tready <= '0';
+
+                if cnt = 0  then
+                  -- Unexpected early return before getting a mode char
+                  m_axis.tvalid <= '1';
+                  m_axis.tdata  <= to_ascii('?');
+                  state         <= ST_DONE;
+                else
+                  -- Successfully got mode char
+                  m_axis.tvalid <= '1';
+                  m_axis.tdata  <= to_ascii('+');
+                  state         <= ST_DONE;
+                end if;
+
+              -- Unexpected character
+              when others =>
+                state <= ST_SYNTAX_ERR;
+            end case;
+
+          end if;
+
+        -- ---------------------------------------------------------------------
         when ST_RX_ADDR =>
           if s_axis.tvalid then
             -- Overflow
-            if cnt = CHARS_PER_ADDR then
+            if cnt = CHARS_PER_WORD then
               state <= ST_SYNTAX_ERR;
             end if;
 
             case rx_char is
               when '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'A' |
                    'a' | 'B' | 'b' | 'C' | 'c' | 'D' | 'd' | 'E' | 'e' | 'F' | 'f' =>
-                m_wb.addr <= m_wb.addr(AXIL_ADDR_WIDTH - 5 downto 0) & hex_to_nibble(rx_char);
+                m_wb.addr <= m_wb.addr(31 - 4 downto 0) & hex_to_nibble(rx_char);
                 cnt       <= cnt + 1;
 
               -- Ignore carriage return
@@ -267,8 +319,8 @@ begin
               when LF =>
                 s_axis.tready <= '0';
 
-                -- Unexpected return before getting any address chars
                 if cnt = 0  then
+                  -- Unexpected return before getting any address chars
                   m_axis.tvalid <= '1';
                   m_axis.tdata  <= to_ascii('?');
                   state         <= ST_DONE;
@@ -325,15 +377,33 @@ begin
         when ST_RX_DATA =>
           if s_axis.tvalid then
             -- Overflow
-            if cnt = CHARS_PER_DATA then
+            if cnt = chars_per_data then
               state <= ST_SYNTAX_ERR;
             end if;
 
             case rx_char is
               when '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'A' |
                    'a' | 'B' | 'b' | 'C' | 'c' | 'D' | 'd' | 'E' | 'e' | 'F' | 'f' =>
-                m_wb.wdat <= m_wb.wdat(AXIL_DATA_WIDTH - 5 downto 0) & hex_to_nibble(rx_char);
-                cnt       <= cnt + 1;
+                if mode = 0 then
+                  if m_wb.addr(1 downto 0) = b"00" then
+                    m_wb.wdat(7 downto 0) <= m_wb.wdat(7 - 4 downto 0) & hex_to_nibble(rx_char);
+                  elsif m_wb.addr(1 downto 0) = b"01" then
+                    m_wb.wdat(15 downto 8) <= m_wb.wdat(15 - 4 downto 8) & hex_to_nibble(rx_char);
+                  elsif m_wb.addr(1 downto 0) = b"10" then
+                    m_wb.wdat(23 downto 16) <= m_wb.wdat(23 - 4 downto 16) & hex_to_nibble(rx_char);
+                  else -- m_wb.addr(1 downto 0) = b"11"
+                    m_wb.wdat(31 downto 24) <= m_wb.wdat(31 - 4 downto 24) & hex_to_nibble(rx_char);
+                  end if;
+                elsif mode = 1 then
+                  if m_wb.addr(1) = '0' then
+                    m_wb.wdat(15 downto 0) <= m_wb.wdat(15 - 4 downto 0) & hex_to_nibble(rx_char);
+                  else -- m_wb.addr(1) = '1'
+                    m_wb.wdat(31 downto 16) <= m_wb.wdat(31 - 4 downto 16) & hex_to_nibble(rx_char);
+                  end if;
+                else   -- mode = 2
+                  m_wb.wdat(31 downto 0) <= m_wb.wdat(31 - 4 downto 0) & hex_to_nibble(rx_char);
+                end if;
+                cnt <= cnt + 1;
 
               when ' ' | HT =>
                 if cnt = 0 then
@@ -423,15 +493,33 @@ begin
         -- ---------------------------------------------------------------------
         when ST_TX_DATA =>
           if m_axis.tready or not m_axis.tvalid then
-            if cnt = (CHARS_PER_DATA - 1) then
+            if cnt = (chars_per_data - 1) then
               state <= ST_DONE;
             end if;
 
             m_axis.tvalid <= '1';
-            rdat          <= rdat(AXIL_DATA_WIDTH - 5 downto 0) & x"0";
-            m_axis.tdata  <= to_ascii(nibble_to_hex(rdat(AXIL_DATA_WIDTH - 1 downto AXIL_DATA_WIDTH - 4)));
+            rdat          <= rdat(31 - 4 downto 0) & x"0";
             cnt           <= cnt + 1;
 
+            if mode = 0 then
+              if m_wb.addr(1 downto 0) = b"00" then
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(7 downto 8 - 4)));
+              elsif m_wb.addr(1 downto 0) = b"01" then
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(15 downto 16 - 4)));
+              elsif m_wb.addr(1 downto 0) = b"10" then
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(23 downto 24 - 4)));
+              else -- m_wb.addr(1 downto 0) = b"11"
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(31 downto 32 - 4)));
+              end if;
+            elsif mode = 1 then
+              if m_wb.addr(1) = '0' then
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(15 downto 16 - 4)));
+              else -- m_wb.addr(1) = '1'
+                m_axis.tdata <= to_ascii(nibble_to_hex(rdat(31 downto 32 - 4)));
+              end if;
+            else   -- mode = 2
+              m_axis.tdata <= to_ascii(nibble_to_hex(rdat(31 downto 32 - 4)));
+            end if;
           end if;
 
         -- ---------------------------------------------------------------------
@@ -473,9 +561,40 @@ begin
         addr_prev     <= (others=> '0');
         wdat_prev     <= (others=> '0');
         m_wb.stb      <= '0';
+        mode_cmd      <= '0';
+        mode          <= 2;
         state         <= ST_RESET;
       end if;
 
+    end if;
+  end process;
+
+  -- ---------------------------------------------------------------------------
+  prc_wsel : process (clk) is begin
+    if rising_edge(clk) then
+      if m_wb.wen then
+        if mode = 0 then
+          if m_wb.addr(1 downto 0) = b"00" then
+            m_wb.wsel <= b"0001";
+          elsif m_wb.addr(1 downto 0) = b"01" then
+            m_wb.wsel <= b"0010";
+          elsif m_wb.addr(1 downto 0) = b"10" then
+            m_wb.wsel <= b"0100";
+          else -- m_wb.addr(1 downto 0) = b"11"
+            m_wb.wsel <= b"1000";
+          end if;
+        elsif mode = 1 then
+          if m_wb.addr(1) = '0' then
+            m_wb.wsel <= b"0011";
+          else -- m_wb.addr(1) = '1'
+            m_wb.wsel <= b"1100";
+          end if;
+        else   -- mode = 2
+          m_wb.wsel <= b"1111";
+        end if;
+      else     -- m_wb.wen = '0'
+        m_wb.wsel <= b"1111";
+      end if;
     end if;
   end process;
 

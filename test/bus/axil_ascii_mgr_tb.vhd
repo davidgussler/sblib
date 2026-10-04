@@ -149,6 +149,7 @@ begin
     wait until rising_edge(clk);
 
     if run("test_0") then
+      info("Mode 2 default (32 bit data granularity)");
       info("Full-sized strings");
       send_ascii("w 00000000 11223344" & LF, "+" & LF);
       send_ascii("r 00000000" & LF, "11223344" & LF);
@@ -211,6 +212,35 @@ begin
       send_ascii("w 123456789 12345678" & LF, "?" & LF);
       send_ascii("w 12345678 123456789" & LF, "?" & LF);
       send_ascii("r 123456789" & LF, "?" & LF);
+
+      info("Mode 1 (16 bit data granularity)");
+      send_ascii("m 1" & LF, "+" & LF);
+      send_ascii("w 00000002 1122" & LF, "+" & LF);
+      send_ascii("w 4 3344" & LF, "+" & LF);
+      send_ascii("s 4455" & LF, "+" & LF);
+      send_ascii("s 66" & LF, "+" & LF);
+      send_ascii("s 778" & LF, "+" & LF);
+      send_ascii("s 12345" & LF, "?" & LF); -- overflow
+      send_ascii("r 00000002" & LF, "1122" & LF);
+      send_ascii("r 04" & LF, "3344" & LF);
+      send_ascii("g" & LF, "4455" & LF);
+      send_ascii("g" & LF, "0066" & LF);
+      send_ascii("p" & LF, "0066" & LF);
+      send_ascii("p" & LF, "0066" & LF);
+      send_ascii("p" & LF, "0066" & LF);
+
+      info("Mode 2 (32 bit data granularity)");
+      send_ascii("m 2" & LF, "+" & LF);
+      send_ascii("r 004" & LF, "44553344" & LF);
+      send_ascii("g" & LF, "07780066" & LF);
+
+      info("Mode 0 (8 bit data granularity)");
+      send_ascii("m 0" & LF, "+" & LF);
+      send_ascii("r 4" & LF, "44" & LF);
+      send_ascii("g" & LF, "33" & LF);
+      send_ascii("g" & LF, "55" & LF);
+      send_ascii("g" & LF, "44" & LF);
+      send_ascii("w 9 aba" & LF, "?" & LF); -- overflow
 
       wait_clks(16);
 
